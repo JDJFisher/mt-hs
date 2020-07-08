@@ -4,20 +4,31 @@ module Tunings where
 --------------------------------------------------------------------------------
 
 import Fundementals
+import Data.Map
 
 --------------------------------------------------------------------------------
 
-type Tuning = (String, [Note])
+type Tuning = [Note]
 
+--------------------------------------------------------------------------------
+
+tunings :: Map String Tuning
+tunings = fromList
+    [ ("Standard", stdt)
+    , ("Half-step down", hsdt)
+    , ("Full-step down", fsdt)
+    , ("Drop D", ddt) ]
 
 stdt :: Tuning
-stdt = ("Standard", [E, A, D, G, B, E])
+stdt = [E, A, D, G, B, E]
 
 hsdt :: Tuning
-hsdt = ("Half-step down", [Eb, Ab, Db, Gb, Bb, Eb])
+hsdt = [Eb, Ab, Db, Gb, Bb, Eb]
 
 fsdt :: Tuning
-fsdt = ("Full-step down", [D, G, C, F, A, D])
+fsdt = [D, G, C, F, A, D]
 
 ddt :: Tuning
-ddt = ("Drop D", [D, A, D, G, B, E])
+ddt = [D, A, D, G, B, E]
+
+--------------------------------------------------------------------------------

@@ -5,10 +5,6 @@ module Fundementals where
 
 --------------------------------------------------------------------------------
 
--- import Utils
-
---------------------------------------------------------------------------------
-
 data Note =  -- Represent accidentals by the neighbouring natural tones
     A | AB | B | C | CD | D | DE | E | F | FG | G | GA
     deriving (Eq, Show, Enum, Bounded)
@@ -48,11 +44,11 @@ pattern Aug4 = Tri
 pattern Dim5 = Tri
 pattern Aug5 = Min6
 
+
+data Accidental = Flat | Sharp
+    deriving (Enum)
+instance Show Accidental where
+    show Flat = "b"   -- ♭
+    show Sharp = "'" -- ♯
+
 --------------------------------------------------------------------------------
-
-interval :: Note -> Note -> Interval
-interval x y = toEnum $ (fromEnum y - fromEnum x + noteCount) `mod` noteCount
-
-
-note :: Note -> Interval -> Note
-note x y = toEnum $ (fromEnum x + fromEnum y) `mod` intervalCount

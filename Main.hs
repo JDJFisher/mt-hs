@@ -6,12 +6,14 @@ module Main where
 import Fundementals
 import Tunings
 import Utils
+import Data.Maybe
 import Numeric.Natural
 
 --------------------------------------------------------------------------------
 
 type Fretting = ([Maybe Natural], Tuning)
 
+type Intervals = [Interval]
 
 data Chord = MkChord Note [Interval]
     deriving (Show)
@@ -19,12 +21,13 @@ data Chord = MkChord Note [Interval]
 --     show = notate Flat
 
 
-data Triad =
+data Quality =
     Maj |
     Min |
     Dim |
     Aug
-instance Show Triad where
+    deriving (Eq)
+instance Show Quality where
     show Maj = ""
     show Min = "m"
     show Dim = "dim"
@@ -59,12 +62,28 @@ invertN :: Int -> Chord -> Chord
 invertN n c = iterate invert c !! n
 
 
-triadType :: [Interval] -> Maybe Triad
-triadType is
-    | Maj3 `elem` is && Perf5 `elem` is = Just Maj
-    | Min3 `elem` is && Perf5 `elem` is = Just Min
+isSeventh :: Intervals -> Bool
+isSeventh is = hasThird is && any (`elem` is) [Min7, Maj7]
+
+
+isTriad :: Intervals -> Bool
+isTriad is = hasThird is && hasFifth is
+
+
+hasThird :: Intervals -> Bool
+hasThird is = any (`elem` is) [Min3, Maj3]
+
+
+hasFifth :: Intervals -> Bool
+hasFifth is = any (`elem` is) [Dim5, Perf5, Aug5]
+
+
+quality :: Intervals -> Maybe Quality
+quality is
     | Min3 `elem` is && Dim5 `elem` is = Just Dim
     | Maj3 `elem` is && Aug5 `elem` is = Just Aug
+    | Maj3 `elem` is = Just Maj
+    | Min3 `elem` is = Just Min
     | otherwise = Nothing
 
 
@@ -77,10 +96,11 @@ noteName a n
 
 
 notate :: Accidental -> Chord -> String
-notate a (MkChord r is) = name ++ ext
+notate a (MkChord r is) = n ++ q ++ e
     where
-        name = noteName a r ++ ""
-        ext = ""
+        n = noteName a r
+        q = show $ quality is
+        e = ""
 
 
 describe :: Accidental -> Chord -> String

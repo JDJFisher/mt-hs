@@ -15,11 +15,9 @@ type Fretting = ([Maybe Natural], Tuning)
 
 type Intervals = [Interval]
 
-data Chord = MkChord Note [Interval]
-    deriving (Show)
--- instance Show Chord where
---     show = notate Flat
-
+data Chord = MkChord {
+    root :: Note, intervals :: [Interval]
+} deriving (Show)
 
 data Quality =
     Maj |
@@ -36,30 +34,33 @@ instance Show Quality where
 --------------------------------------------------------------------------------
 
 flat :: Note -> Note
-flat = cyclePred
+flat = cpred
 
 
 sharp :: Note -> Note
-sharp = cycleSucc
+sharp = csucc
 
 
-interval :: Note -> Note -> Interval
-interval x y = toEnum $ (fromEnum y - fromEnum x + noteCount) `mod` noteCount
+findIntvl :: Note -> Note -> Interval
+findIntvl x y = toEnum $ go x
+    where
+        go z | z == y = 0
+             | otherwise = 1 + go (sharp z)
 
 
-note :: Note -> Interval -> Note
-note x y = toEnum $ (fromEnum x + fromEnum y) `mod` intervalCount
+applyIntvl :: Note -> Interval -> Note
+applyIntvl x y = applyN sharp (fromEnum y) x
 
 
 invert :: Chord -> Chord
 invert (MkChord r (i:is)) = MkChord r' is'
     where
-        r' = note r i
-        is' = map (\x -> interval r' $ note r x) is ++ [interval r' r]
+        r' = applyIntvl r i
+        is' = map (applyN csucc $ fromEnum i) is ++ [findIntvl r' r]
 
 
 invertN :: Int -> Chord -> Chord
-invertN n c = iterate invert c !! n
+invertN = applyN invert
 
 
 isSeventh :: Intervals -> Bool
@@ -96,15 +97,15 @@ noteName a n
 
 
 notate :: Accidental -> Chord -> String
-notate a (MkChord r is) = n ++ q ++ e
+notate a (MkChord r is) = concat [n,q]
     where
         n = noteName a r
-        q = show $ quality is
-        e = ""
+        q = fromMaybe "" $ show <$> quality is
+        e = "extensions"
 
 
 describe :: Accidental -> Chord -> String
-describe = notate
+describe = notate -- | TODO: convert notation to natural language
 
 --------------------------------------------------------------------------------
 

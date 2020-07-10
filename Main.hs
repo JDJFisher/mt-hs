@@ -11,27 +11,8 @@ import Numeric.Natural
 
 --------------------------------------------------------------------------------
 
-
-type Intervals = [Interval]
-
-data Chord = MkChord {
-    root :: Note, intervals :: [Interval]
-} deriving (Show)
-
-data Quality =
-    Maj |
-    Min |
-    Dim |
-    Aug
-    deriving (Eq)
-instance Show Quality where
-    show Maj = ""
-    show Min = "m"
-    show Dim = "dim"
-    show Aug = "aug"
 type Fretting = [(Maybe Int, Note)]
 
---------------------------------------------------------------------------------
 
 flat :: Note -> Note
 flat = cpred

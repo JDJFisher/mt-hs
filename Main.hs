@@ -11,7 +11,6 @@ import Numeric.Natural
 
 --------------------------------------------------------------------------------
 
-type Fretting = ([Maybe Natural], Tuning)
 
 type Intervals = [Interval]
 
@@ -30,6 +29,7 @@ instance Show Quality where
     show Min = "m"
     show Dim = "dim"
     show Aug = "aug"
+type Fretting = [(Maybe Int, Note)]
 
 --------------------------------------------------------------------------------
 
@@ -107,6 +107,19 @@ notate a (MkChord r is) = concat [n,q]
 describe :: Accidental -> Chord -> String
 describe = notate -- | TODO: convert notation to natural language
 
+
+fretNotes :: Fretting -> Notes
+fretNotes ls = [applyIntvl n $ toEnum f | (Just f, n) <- ls]
+
+
+fromNotes :: Notes -> Chord
+fromNotes (l:ls) = MkChord l $ map (findIntvl l) ls
+fromNotes _ = error "No notes" -- | TODO: rework
+
+
+fromFret :: Fretting -> Chord
+fromFret = fromNotes . fretNotes
+
 --------------------------------------------------------------------------------
 
 main :: IO()
@@ -119,7 +132,10 @@ c'm :: Chord
 c'm = MkChord C' [Min3, Perf5]
 
 og :: Fretting
-og = ([Just 3, Just 2, Just 0, Just 0, Just 0, Just 3], stdt)
+og = zip [Just 3, Just 2, Just 0, Just 0, Just 0, Just 3] stdt
 
 oa :: Fretting
-oa = ([Nothing, Just 0, Just 2, Just 2, Just 2, Just 0], stdt)
+oa = zip [Nothing, Just 0, Just 2, Just 2, Just 2, Just 0] stdt
+
+stb :: Fretting
+stb = zip [Just 7, Just 9, Nothing, Just 8, Nothing, Nothing] stdt
